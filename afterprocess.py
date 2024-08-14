@@ -9,13 +9,13 @@ def main():
     for filename in tqdm(result_filenames):
         site_name = filename.split('_')[0]
         Rp = filename.split('_')[3].replace('Rp', '')
-        Rv = filename.split('_')[4].split('.')[0].replace('Rv', '')
-        tt_emergence = filename.split('_')[5].split('.')[0].replace('tt_emergence', '')
-        tt_end_of_juvenile = filename.split('_')[6].split('.')[0].replace('tt_end_of_juvenile', '')
-        tt_floral_initiation = filename.split('_')[7].split('.')[0].replace('tt_floral_initiation', '')
-        tt_flowering = filename.split('_')[8].split('.')[0].replace('tt_flowering', '')
-        tt_start_grain_fill = filename.split('_')[9].split('.')[0].replace('tt_start_grain_fill', '')
-        tt_end_grain_fill = filename.split('_')[10].split('.')[0].replace('tt_end_grain_fill', '')
+        Rv = filename.split('_')[4].replace('Rv', '')
+        tt_emergence = filename.split('_tt')[1].split('.')[0].replace('_emergence', '')
+        tt_end_of_juvenile = filename.split('_tt')[2].split('.')[0].replace('_end_of_juvenile', '')
+        tt_floral_initiation = filename.split('_tt')[3].split('.')[0].replace('_floral_initiation', '')
+        tt_flowering = filename.split('_tt')[4].split('.')[0].replace('_flowering', '')
+        tt_start_grain_fill = filename.split('_tt')[5].split('.')[0].replace('_start_grain_fill', '')
+        tt_end_grain_fill = filename.split('_tt')[6].split('.')[0].replace('_end_grain_fill', '')
         df = pd.read_csv(os.path.join('./output/parameter_predict', filename), parse_dates=["Date"])
 
         first_date = df.loc[0, 'Date']
@@ -35,7 +35,7 @@ def main():
         result_files.append(df)
 
     result_df = pd.concat(result_files, ignore_index=True, axis=0)
-    result_df.to_csv('parameter_scenario_output_very_early16.csv', index=False)
+    result_df.to_csv('parameter_scenario_output_very_early20.csv', index=False)
     # print(result_df)
 
 
