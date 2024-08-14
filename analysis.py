@@ -54,6 +54,7 @@ def reference_ob_preprocess(df):
 def preprocessing(df, ob):
     observed = reference_ob_preprocess(ob)
     observed = observed[observed['지역'] != 'Jinju']
+
     # observed = observed.drop(columns=['생육재생기', '최고분얼기', '생육재생기_DOY', '최고분얼기_DOY'])
     observed = observed.drop_duplicates(subset=['지역', 'year', '파종기_DOY', '성숙기_DOY', '출수기_DOY', '생육재생기_DOY'])
     data = pd.merge(df, observed, left_on=['Site', 'Year', 'sowing_date'],right_on=['지역', 'year', '파종기_DOY'], how='right')
@@ -163,16 +164,46 @@ def plot_results(data):
     plt.show()
 
 
+def performance(df, observed):
+    observed = reference_ob_preprocess(observed)
+    observed = observed[observed['지역'] != 'Jinju']
 
+    # observed = observed.drop_duplicates(subset=['지역', 'year', '파종기_DOY', '성숙기_DOY', '출수기_DOY', '생육재생기_DOY'])
+    data = pd.merge(df, observed, left_on=['Site', 'Year', 'sowing_date'], right_on=['지역', 'year', '파종기_DOY'],
+                    how='right').dropna(subset=['Parameter_set'])
+    data = data[data['품종'] == '금강밀']
+
+    result = []
+    for param_set in data['Parameter_set'].unique():
+        subset = data[data['Parameter_set'] == param_set]
+        subset = subset.drop_duplicates(subset=['지역', 'year', '파종기_DOY', '성숙기_DOY', '출수기_DOY', '생육재생기_DOY'])
+        subset = subset.dropna(subset=['출수기_DOY', 'heading_date'])
+
+        x = subset['출수기_DOY']
+        y = subset['heading_date']
+
+        model = np.polyfit(x, y, 1)
+        y_pred = np.polyval(model, x)
+
+        r2 = r2_score(y, y_pred)
+        rmse = np.sqrt(mean_squared_error(y, y_pred))
+
+        result.append({
+            'Parameter_set': param_set,
+            'R2': r2,
+            'RMSE': rmse
+        })
+
+    result_df = pd.DataFrame(result)
+    print(result_df)
 
 def main():
-    df = pd.read_csv('./parameter_scenario_output_very_early16.csv', parse_dates=['Date'])
+    df = pd.read_csv('./parameter_scenario_output_very_early20.csv', parse_dates=['Date'])
     observed = pd.read_csv('./input/reference_observed.csv')
 
-
-
     data = preprocessing(df, observed)
-    plot_results(data)
+    # plot_results(data)
+    performance(df, observed)
 
 
 if __name__ == '__main__':
